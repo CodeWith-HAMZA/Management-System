@@ -3,12 +3,20 @@ import {
   Meta,
   Outlet,
   Scripts,
+  json,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { useState } from "react";
 
+export async function loader() {
+  const CONVEX_URL = process.env["CONVEX_URL"]!;
+  return json({ ENV: { CONVEX_URL } });
+}
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -23,6 +31,8 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { ENV } = useLoaderData<typeof loader>();
+  const [convex] = useState(() => new ConvexReactClient(ENV.CONVEX_URL));
   return (
     <html lang="en">
       <head>
@@ -32,7 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <ConvexProvider client={convex}>{children}</ConvexProvider>{" "}
         <ScrollRestoration />
         <Scripts />
       </body>
