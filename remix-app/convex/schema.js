@@ -6,6 +6,7 @@ export default defineSchema({
     name: v.string(),
     email: v.string(),
     image: v.string(),
+    // waah: v.number(),
   }),
 //   users: defineTable({
 //     name: v.string(),

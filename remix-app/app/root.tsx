@@ -12,10 +12,26 @@ import type { LinksFunction } from "@remix-run/node";
 import "./tailwind.css";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { useState } from "react";
+import type { MetaFunction, LoaderFunction } from "@remix-run/node";
+import { rootAuthLoader } from "@clerk/remix/ssr.server";
+import { ClerkApp } from "@clerk/remix";
+export async function loader(args) {
+  const CONVEX_URL = process.env.CONVEX_URL;
+  if (!CONVEX_URL) {
+    throw new Error("Missing CONVEX_URL environment variable.");
+  }
 
-export async function loader() {
-  const CONVEX_URL = process.env["CONVEX_URL"]!;
-  return json({ ENV: { CONVEX_URL } });
+  return rootAuthLoader(args, async ({ request }) => {
+    const { sessionId, userId, getToken } = request.auth;
+
+    // Add logic to fetch data based on sessionId or userId if needed
+    // const yourData = "example-data";
+
+    return json({
+      // yourData,
+      ENV: { CONVEX_URL }, // Include the environment variable in the response
+    });
+  });
 }
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -42,7 +58,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <ConvexProvider client={convex}>{children}</ConvexProvider>{" "}
+        <ConvexProvider client={convex}>{children}</ConvexProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -50,6 +66,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function App() {
   return <Outlet />;
 }
+
+export default ClerkApp(App);
