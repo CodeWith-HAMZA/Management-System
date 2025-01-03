@@ -15,7 +15,7 @@ import { useState } from "react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/node";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 import { ClerkApp } from "@clerk/remix";
-export async function loader(args) {
+export async function loader(args: unknown) {
   const CONVEX_URL = process.env.CONVEX_URL;
   if (!CONVEX_URL) {
     throw new Error("Missing CONVEX_URL environment variable.");
@@ -28,23 +28,11 @@ export async function loader(args) {
     // const yourData = "example-data";
 
     return json({
-      // yourData,
+      user: { id: userId},
       ENV: { CONVEX_URL }, // Include the environment variable in the response
     });
   });
 }
-export const links: LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { ENV } = useLoaderData<typeof loader>();

@@ -18,7 +18,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex flex-col h-full">
           <div className="p-4 border-b">
             <Link to="/" className="flex items-center gap-2 font-semibold">
-              <span className="text-xl">AI Notes</span>
+              <span className="text-xl font-bold ml-1">AI Notes</span>
             </Link>
           </div>
           <div className="p-4">

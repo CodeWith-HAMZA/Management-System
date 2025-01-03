@@ -5,11 +5,12 @@ import { mutation } from "./_generated/server";
 
 
 
-export const defaultMutation = mutation({
+export const upsertUser = mutation({
   args: {
     email: v.string(),
     name: v.string(),
     image: v.string(),
+    clerkId: v.string(),
   },
   handler: async (ctx, args) => {
 
@@ -24,10 +25,12 @@ export const defaultMutation = mutation({
     }
 
 
+    // othre wise create the user
     const userId = await ctx.db.insert("users", {
       name: args.name,
       email: args.email,
       image: args.image,
+      clerkId: args.clerkId,
     });
 
     return userId;

@@ -38,7 +38,7 @@ export function FileCard({ fileName, uploadDate }: FileCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>View details</DropdownMenuItem>
+              {/* <DropdownMenuItem onClick={() => window.location.href =  }>View details</DropdownMenuItem> */}
               <DropdownMenuItem>Download</DropdownMenuItem>
               <DropdownMenuItem className="text-destructive">
                 Delete

@@ -29,10 +29,12 @@ import { Button } from "~/components/ui/button"
 import { FeatureCard } from "~/components/cards/featured-card"
 import { Brain, Zap, Search, Lock } from 'lucide-react'
 import { Link } from "@remix-run/react"
+import Header from "~/components/layouts/header"
  
 export default function IndexPage() {
   return (
     <>
+    <Header/>
       <div className="flex-1 overflow-y-auto">
         {/* Hero Section */}
         <section className="py-20 px-6 text-center bg-gradient-to-b from-background to-secondary/20">
