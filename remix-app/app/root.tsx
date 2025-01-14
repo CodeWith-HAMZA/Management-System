@@ -15,6 +15,7 @@ import { useState } from "react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/node";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 import { ClerkApp } from "@clerk/remix";
+import { Toaster } from "./components/ui/sonner";
 export async function loader(args: unknown) {
   const CONVEX_URL = process.env.CONVEX_URL;
   if (!CONVEX_URL) {
@@ -55,7 +56,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  return <Outlet />;
+  return <>
+    <Toaster />
+    <Outlet />
+  </>
 }
 
 export default ClerkApp(App);

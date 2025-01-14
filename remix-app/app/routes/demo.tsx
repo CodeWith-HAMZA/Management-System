@@ -4,7 +4,9 @@ import { useLoaderData } from "@remix-run/react";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
-
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { TaskType } from "@google/generative-ai";
 
 
 export const loader = async () => {
@@ -14,20 +16,39 @@ export const loader = async () => {
   const res = await fetch(fileUrl)
   const data = await res.blob()
 
+  // fetching
+
   const loader = new WebPDFLoader(data);
   const docs = await loader.load();
-  let textContentOfFile = '';
 
+  let textContentOfFile = '';
+  // getting content of the file (only text)
   docs.forEach((doc) => {
     textContentOfFile += doc.pageContent;
   });
 
 
-  return json({ ok: true, textContentOfFile });
+  // split the text into chunks
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 200,
+  });
+
+ 
+const texts = await textSplitter.createDocuments([textContentOfFile]);
+
+let splitterList: Array<string> = [];
+
+texts.forEach(text => {
+  splitterList.push(text.pageContent)
+})
+  return json({ ok: true, splitterList });
 };
+
+
 export default function DataFetchPage() {
+  
   const data = useLoaderData<typeof loader>();
-  // const [data, setData] = useState([]);
-  console.log(data);
+   console.log(data);
   return JSON.stringify(data);
 }

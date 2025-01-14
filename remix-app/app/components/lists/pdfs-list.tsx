@@ -16,7 +16,7 @@ const PdfList = () => {
   if (!q ) {
     return (
       <div className="pt-8">
-        <Loader className="text-gray-400 animate-spin mx-auto" />;
+        <Loader className="text-gray-500 size-6 animate-spin mx-auto" />;
       </div>
     );
   }
@@ -24,11 +24,11 @@ const PdfList = () => {
 
   // return JSON.stringify(user)
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 " style={{overflow: 'scroll', height: '72vh'}}>
       {q?.map((file) => (
         <FileCard
           key={file._id}
-        
+          file={file}
           fileName={file.fileName}
           uploadDate={Date(file._creationTime)}
         />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -10,11 +10,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "~/components/ui/dialog";
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import { Loader } from "lucide-react";
 import { uuid } from "~/lib/utils";
 import { useUser } from "@clerk/remix";
+import { toast } from "sonner";
+import useUploadDocument from "~/../hooks/useUploadDocument";
 
 interface UploadModalProps {
   open: boolean;
@@ -23,60 +25,25 @@ interface UploadModalProps {
 
 export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const [fileName, setFileName] = useState("");
-  const user = useUser();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const generateUploadURL = useMutation(api.fileStorage.generateUploadUrl);
-  const createPdfFile = useMutation(api.fileStorage.createPdfFile);
-  const getFileUrl = useMutation(api.fileStorage.getFileUrl);
-  
+  const { uploadAndProcessDocument, loading } = useUploadDocument(onOpenChange);
+  const user = useUser();
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      // Set the filename input to the file's name by default
       setFileName(file.name.replace(/\.[^/.]+$/, ""));
     }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !fileName) return;
-
-    try {
-      const postUrl = await generateUploadURL();
-
-      console.log(postUrl);
-      const result = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": selectedFile.type },
-        body: selectedFile,
-      });
-
-      const { storageId } = await result.json();
-      console.log(storageId);
-
-      createPdfFile({
-        storageId,
-        fileName,
-        id: uuid(),
-        user: user.user?.id?.toString() || uuid(),
-      });
-
-      // await sendImage({ storageId, author: name });
-
-      console.log("Uploading:", {
-        storageId: storageId,
-        fileName: fileName,
-      });
-
-      // Close the modal after successful upload
-      onOpenChange(false);
-
-      // Reset the form
-      setFileName("");
-      setSelectedFile(null);
-    } catch (error) {
-      console.error("Upload failed:", error);
-    }
+    if (!selectedFile || !fileName || !user.user) return toast.error('Something Went Wrong');
+    await uploadAndProcessDocument({
+      selectedFile,
+      fileName,
+      userId: user.user?.id?.toString(),
+    });
   };
 
   return (
@@ -107,9 +74,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpload} disabled={!selectedFile || !fileName}>
-            {true && <Loader className="animate-spin" />}
-            Upload
+          <Button onClick={handleUpload} disabled={!selectedFile || !fileName || loading}>
+            {loading ? <Loader className="animate-spin" /> : "Upload"}
           </Button>
         </DialogFooter>
       </DialogContent>

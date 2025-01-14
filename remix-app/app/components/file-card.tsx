@@ -7,13 +7,14 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { Button } from "~/components/ui/button"
+import { Link } from "@remix-run/react"
 
 interface FileCardProps {
   fileName: string
   uploadDate: string
 }
 
-export function FileCard({ fileName, uploadDate }: FileCardProps) {
+export function FileCard({  file }: FileCardProps) {
   return (
     <Card className="group relative">
       <CardContent className="p-4">
@@ -22,9 +23,9 @@ export function FileCard({ fileName, uploadDate }: FileCardProps) {
             <FileText className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1 space-y-1">
-            <h3 className="font-medium leading-none">{fileName}</h3>
+            <h3 className="font-medium leading-none">{file?.fileName}</h3>
             <p className="text-sm text-muted-foreground">
-              Uploaded on {uploadDate}
+              Uploaded on {file?._creationTime}
             </p>
           </div>
           <DropdownMenu>
@@ -37,9 +38,24 @@ export function FileCard({ fileName, uploadDate }: FileCardProps) {
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+           <DropdownMenuContent align="end">
               {/* <DropdownMenuItem onClick={() => window.location.href =  }>View details</DropdownMenuItem> */}
-              <DropdownMenuItem>Download</DropdownMenuItem>
+              <DropdownMenuItem  className="cursor-pointer">
+                <Link to={`/d/${file?.id}`}>Open</Link>
+                 </DropdownMenuItem>
+              <DropdownMenuItem onClick={
+                () => {
+                  
+                  // download it directly
+                  // window.location.href = file?.url
+                  // // 
+                  const link = document.createElement('a')
+                  link.href = file?.url
+                  link.download = file?.fileName
+                  link.click()
+                }
+              } className="cursor-pointer">Download</DropdownMenuItem>
+
               <DropdownMenuItem className="text-destructive">
                 Delete
               </DropdownMenuItem>
