@@ -26,8 +26,10 @@ interface UploadModalProps {
 export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const [fileName, setFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const { uploadAndProcessDocument, loading } = useUploadDocument(onOpenChange);
   const user = useUser();
+  const { uploadAndProcessDocument, loading } = useUploadDocument(() => {
+    onOpenChange(false)
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

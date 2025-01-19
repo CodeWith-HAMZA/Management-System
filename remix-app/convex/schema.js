@@ -20,6 +20,9 @@ export default defineSchema({
   }),
 
 
+
+  // vector store   
+
   documents: defineTable({
     embedding: v.array(v.number()),
     text: v.string(),

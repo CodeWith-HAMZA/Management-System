@@ -16,7 +16,7 @@ export const createPdfFile = mutation({
     user: v.string()
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("pdfs", {
+   return await ctx.db.insert("pdfs", {
       id: args.id,
       storageId: args.storageId,
       fileName: args.fileName,
@@ -55,9 +55,8 @@ export const getAllFiles = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("pdfs")
-      .filter((q) => q.eq(q.field("user"), args.user))
-      .order('desc') 
-      .take(5);
+      .filter((q) => q.eq(q.field("user"), args.user)).collect()
+      
   },
 });
  
@@ -71,9 +70,8 @@ export const getRecentFiles = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("pdfs")
-      .filter((q) => q.eq(q.field("user"), args.user))
-      .order("desc").
-      .take(5);
+      .filter((q) => q.eq(q.field("user"), args.user)).collect()
+       
   },
 });
 

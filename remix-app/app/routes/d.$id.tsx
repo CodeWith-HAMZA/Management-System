@@ -8,10 +8,12 @@ import { useQuery } from 'convex/react';
 
 import PdfViewer from '~/components/pdf-viewer';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '~/components/ui/resizable';
+import EditorView from '~/components/editor-view';
 
 const Page = () => {
   // const { editor } = useCurrentEditor()
   const { id } = useParams();
+  // @ts-ignore
   const files = useQuery(api.fileStorage.getFileById, { id });
   
     
@@ -29,14 +31,7 @@ const Page = () => {
     <div style={{ display: 'flex', height: '100vh' }}>
       <ResizablePanelGroup direction="horizontal">
       <ResizablePanel>
-         <h2>File Metadata</h2>
-        <p><strong>File Name:</strong> {file.fileName}</p>
-        <p><strong>User:</strong> {file.user}</p>
-        <p><strong>Storage ID:</strong> {file.storageId}</p>
-        <p><strong>ID:</strong> {file.id}</p>
-
-        <p><strong>URL:</strong> <a href={file?.url} target="_blank" rel="noopener noreferrer">{file.url}</a></p>
-        {/* <EditorView /> */}
+         <EditorView fileId={file.id} title={file?.fileName} />
         
 
       </ResizablePanel>

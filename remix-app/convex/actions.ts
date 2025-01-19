@@ -10,25 +10,53 @@ import { v } from "convex/values";
 
 export const ingest = action({
   args: {
-    chunks: v.any()
+    chunks: v.any(),
+    fileId: v.string(),
+    title: v.string(),
   },
 
   handler: async (ctx, args) => {
-
-    const embeddings = new GoogleGenerativeAIEmbeddings({
+     const embeddings = new GoogleGenerativeAIEmbeddings({
         model: "text-embedding-004",  
         taskType: TaskType.RETRIEVAL_DOCUMENT,
         title: "Document title",
         apiKey: GEMENI_API_KEY,
     });
-
+    console.log(embeddings, ' embeddings')
     await ConvexVectorStore.fromTexts(
-      args.chunks,
-      [{ prop: 2 }, { prop: 1 }, { prop: 3 }],
+      args.chunks as string[],
+      [{ prop: 2, fileId: args?.fileId  }],
       embeddings,
       { ctx }
     );
 
   },
   
+});
+
+// search action
+export const search = action({
+  args: {
+    query: v.string(),
+    fileId: v.string(),
+  },
+  handler: async (ctx, args) => {
+
+    // converting text-query to embeddings
+    const embeddings = new GoogleGenerativeAIEmbeddings({
+      model: "text-embedding-004",  
+      taskType: TaskType.RETRIEVAL_DOCUMENT,
+      title: "Document title",
+      apiKey: GEMENI_API_KEY,
+  });
+
+    // Now, matching the vector valuess with database and performing similarity search
+    const vectorStore = new ConvexVectorStore(embeddings, { ctx });
+    const results = await vectorStore.similaritySearch(args.query, 1);
+    results.filter(
+      (result) => result.metadata.fileId === args.fileId
+    )
+    // return results.map((result) => result.pageContent);
+    return results
+  },
 });

@@ -1,0 +1,203 @@
+/* Define Variables */
+:root {
+  --purple-light: #e0d4fc; /* Soft purple shade */
+  --purple-medium: #958DF1; /* Medium purple for accents */
+  --purple-dark: #5a4fb0; /* Dark purple for strong emphasis */
+  --gray-light: #f3f3f3; /* Light gray for background */
+  --gray-medium: #dcdcdc; /* Medium gray for borders */
+  --gray-dark: #7a7a7a; /* Dark gray for text */
+  --white: #ffffff; /* White */
+  --black: #000000; /* Black */
+}
+
+/* Basic editor styles */
+.tiptap:first-child {
+  margin-top: 0;
+}
+
+/* List styles */
+.tiptap ul,
+.tiptap ol {
+  padding: 0 1.5rem;
+  margin: 1.5rem 1rem 1.5rem 1rem;
+  color: var(--gray-dark);
+}
+
+.tiptap ul li p,
+.tiptap ol li p {
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Button styles */
+.bold {
+  border-radius: 8px;
+  padding: 0.25rem 0.6rem;
+  background-color: var(--gray-light);
+  border: 1px solid var(--gray-medium);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--purple-dark);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bold:hover {
+  background-color: var(--purple-medium);
+  color: var(--white);
+  border-color: var(--purple-dark);
+}
+
+.is-active {
+  background-color: var(--purple-light);
+  color: var(--purple-dark);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.25rem 0.6rem;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--purple-medium);
+  transition: all 0.3s ease;
+}
+
+/* Heading styles */
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: var(--purple-dark);
+}
+
+.tiptap h1 {
+  font-size: 1.6rem;
+}
+
+.tiptap h2 {
+  font-size: 1.4rem;
+}
+
+.tiptap h3 {
+  font-size: 1.2rem;
+}
+
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  font-size: 1rem;
+}
+
+/* Code and preformatted text styles */
+.tiptap code {
+  background-color: var(--purple-light);
+  border-radius: 0.4rem;
+  color: var(--purple-dark);
+  font-size: 0.9rem;
+  padding: 0.3rem 0.5rem;
+  font-family: 'JetBrainsMono', monospace;
+  box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tiptap pre {
+  background: var(--gray-light);
+  border-radius: 0.5rem;
+  color: var(--gray-dark);
+  font-family: 'JetBrainsMono', monospace;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tiptap pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.85rem;
+  padding: 0;
+}
+
+/* Blockquote styles */
+.tiptap blockquote {
+  border-left: 4px solid var(--purple-medium);
+  background-color: var(--purple-light);
+  padding: 1rem;
+  margin: 1.5rem 0;
+  color: var(--purple-dark);
+  border-radius: 0.4rem;
+  font-style: italic;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Horizontal rule styles */
+.tiptap hr {
+  border: none;
+  border-top: 2px solid var(--purple-medium);
+  margin: 2rem 0;
+}
+
+/* Toolbar (menu bar) styles */
+.control-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--gray-light);
+  border: 1px solid var(--gray-medium);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Paragraph styles */
+.tiptap p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--gray-dark);
+  margin-bottom: 1rem;
+}
+
+/* Lists */
+.tiptap ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.tiptap ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.tiptap ul li,
+.tiptap ol li {
+  margin-bottom: 0.5rem;
+}
+
+/* Hard break styles */
+.tiptap br {
+  display: inline-block;
+  height: 1rem;
+}
+
+/* Editor background */
+.Editor {
+  background-color: var(--white);
+  border: 1px solid var(--gray-medium);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+}

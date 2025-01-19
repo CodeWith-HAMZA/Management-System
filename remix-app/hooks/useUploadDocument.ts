@@ -17,7 +17,7 @@ export default function useUploadDocument(onComplete: () => void) {
   const createPdfFile = useMutation(api.fileStorage.createPdfFile);
   const getFileUrl = useMutation(api.fileStorage.getFileUrl);
   const embbedDocument = useAction(api.actions.ingest);
-    const user = useUser()
+    // const user = useUser()
 
   const uploadAndProcessDocument = async ({ selectedFile, fileName, userId }: UploadParams) => {
     setLoading(true);
@@ -35,14 +35,14 @@ export default function useUploadDocument(onComplete: () => void) {
       // console.log(storageId, 'shaddu')
       // setLoading(false);
       // return;
-
-      // Step 2: Save metadata in Convex
-      await createPdfFile({ storageId, fileName, id: uuid(), user: userId });
+      const fileId = uuid();
+      // Step 2: Save metadata in Convex (pdfs)
+      const createdPdf =  await createPdfFile({ storageId, fileName, id: fileId , user: userId });
 
       // Step 3: Get file URL
       const fileUrl = await getFileUrl({ storageId });
 
-      // Step 4: Process the file (split text into chunks)
+      // Step 4: Process the file (split text into chunks (meaning array of sub strings)) eg. "how are you" -> ["how ", "are you"]
       const res = await fetch("/process-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,8 +50,11 @@ export default function useUploadDocument(onComplete: () => void) {
       });
       const data = await res.json();
 
-      // Step 5: Embed document chunks
-      await embbedDocument({ chunks: data.chunks });
+      console.log(data, createdPdf,' data')
+
+      // Step 5: Embed document chunks into vector store
+    const resp  =  await embbedDocument({ chunks: data.chunks, fileId:fileId, title: 'Sample Doc Title'});
+    console.log(resp, ' res')
 
       toast.success("Successfully uploaded and processed the document");
 
