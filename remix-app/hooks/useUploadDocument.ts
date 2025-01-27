@@ -52,13 +52,15 @@ export default function useUploadDocument(onComplete: () => void) {
 
       console.log(data, createdPdf,' data')
 
+       
       // Step 5: Embed document chunks into vector store
     const resp  =  await embbedDocument({ chunks: data.chunks, fileId:fileId, title: 'Sample Doc Title'});
     console.log(resp, ' res')
 
       toast.success("Successfully uploaded and processed the document");
 
-      onComplete();
+      // success cb
+      onComplete(); 
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error("Failed to upload and process the document");

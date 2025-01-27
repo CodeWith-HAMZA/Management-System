@@ -31,7 +31,7 @@ const Page = () => {
     <div style={{ display: 'flex', height: '100vh' }}>
       <ResizablePanelGroup direction="horizontal">
       <ResizablePanel>
-         <EditorView fileId={file.id} title={file?.fileName} />
+         <EditorView file={file} fileId={file.id} title={file?.fileName} />
         
 
       </ResizablePanel>

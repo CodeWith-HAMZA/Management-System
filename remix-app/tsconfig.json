@@ -6,7 +6,7 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx"
-, "convex/fileStorage.js", "convex/user.js", "convex/schema.js"  ],
+, "convex/fileStorage.js", "convex/user.js", "convex/schema.js", "convex/notes.js"  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@remix-run/node", "vite/client"],

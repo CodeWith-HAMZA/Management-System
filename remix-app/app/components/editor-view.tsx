@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Highlight from '@tiptap/extension-highlight'
 import TaskList from '@tiptap/extension-task-list'
@@ -26,28 +26,50 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { Slider } from "~/components/ui/slider"
 import { Switch } from "~/components/ui/switch"
 import { Label } from "~/components/ui/label"
-import { Bold, Italic, Strikethrough, Code, List, ListOrdered, CheckSquare, Heading1, Heading2, Heading3, Quote, Undo, Redo, AlignLeft, AlignCenter, AlignRight, TableIcon, ImageIcon, Link, Unlink, Maximize, Minimize, Share2, Save, FileText, Settings, Moon, Sun, Palette, Stars } from 'lucide-react'
-import { useAction } from 'convex/react'
+import { Bold, Italic, Strikethrough, Code, List, ListOrdered, CheckSquare, Heading1, Heading2, Heading3, Quote, Undo, Redo, AlignLeft, AlignCenter, AlignRight, TableIcon, ImageIcon, Link, Unlink, Maximize, Minimize, Share2, Save, FileText, Settings, Moon, Sun, Palette, Stars, Loader2, Loader } from 'lucide-react'
+import { useAction, useMutation, useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
+import { chatSession } from 'services'
+import { uuid } from '~/lib/utils'
+import { Id } from 'convex/_generated/dataModel'
+import { toast } from 'sonner'
  
 type Props  = {
   title: string;
+  file:{
+    _id: Id<"pdfs">;
+    _creationTime: number;
+    user: string;
+    id: string;
+    storageId: string;
+    fileName: string;
+    url: string;
+  }
   fileId: string;
 }
 interface MenuBarProps extends Props  {
-  editor: any, isFullScreen: boolean, toggleFullScreen: () => void, isDarkMode: boolean, toggleDarkMode: () => void
+  editor: Editor, isFullScreen: boolean, toggleFullScreen: () => void, isDarkMode: boolean, toggleDarkMode: () => void
 
 }
-const MenuBar = ({ editor,fileId,title, isFullScreen, toggleFullScreen, isDarkMode, toggleDarkMode }: MenuBarProps) => {
+const MenuBar = ({ editor,file,fileId,title, isFullScreen, toggleFullScreen, isDarkMode, toggleDarkMode }: MenuBarProps) => {
   const [linkUrl, setLinkUrl] = useState('')
+  const [loading, setLoading] = useState(false);
+
   const [query, setquery] = useState({
     text: '',
     isTextSelected: false,
   });
   const search = useAction(api.actions.search)
+  const createNote = useMutation(api.notes.createNote)
+  const notes = useQuery(api.notes.getNotesByPdfId, {pdfId: file?.id});
+  const note = notes?.[0];
+  console.log(note, ' note')
 
   useEffect(() => {
+    
     if (editor) {
+      
+ 
       const updateAskAIState = () => {
         const selection = editor.state.selection;
         const text = editor.state.doc.textBetween(selection.from, selection.to, ' ');
@@ -63,14 +85,62 @@ const MenuBar = ({ editor,fileId,title, isFullScreen, toggleFullScreen, isDarkMo
     }
   }, [editor]);
   
+  useEffect(() => {
+    if (editor) {
+      editor.commands.setContent(note?.text || '');
+    }
+  }, [note]);
+
 
   if (!editor) {
     return null
   }
  async function handleSearchInVectorStore (){
+  setLoading(true);  // Set loading to true when starting the AI query
+  const currentContent = editor.getHTML(); 
+    
 
-  //  const response = await search({fileId, query: query.text})
-   console.log('response', ' resp',fileId, query)
+   let response = await search({fileId, query: query.text})
+   response = JSON.parse(response)
+
+   console.log('response', ' resp',fileId, query, response )
+   let ans;
+   Array(response)?.forEach((item: any) => {
+    ans = item.pageContent
+   })
+  //  console.log(ans, ' accumulated ans')
+console.log(ans, ' ans')
+   const PROMPT = `For Question: ${query.text} and with the given content as answer, please give appropriate answer in html format. The answer content is: ${ans || "couldn't fetch it, then show [Sorry Couldn't Fetch Please Try Again]"}`
+   const aiAnswerResponse = await chatSession.sendMessage(PROMPT)
+   console.log(aiAnswerResponse.response.text(), aiAnswerResponse.response, ' shaddu')
+   let trimmedResponse = aiAnswerResponse.response.text();
+   console.log(trimmedResponse)
+   
+  //  const aiAnswer =
+  
+  const queryResponse =`${query.text} <p> <strong>Answer: </strong> ${trimmedResponse} </p>`
+  // editor.commands.setContent(queryResponse)
+
+   
+  editor.commands.setContent(currentContent + '<br/> <br/>' + queryResponse) 
+
+  // get previous text 
+  const previousText = editor.$doc.content
+  console.log(previousText, ' previous')
+
+
+  // editor.commands.setContent(note?.text)
+
+  
+  
+  toast.success("Changes Updated")
+
+  
+
+  setLoading(false);  // Set loading to false once the response is ready
+
+
+
   }
 
 
@@ -354,24 +424,27 @@ const MenuBar = ({ editor,fileId,title, isFullScreen, toggleFullScreen, isDarkMo
             </TooltipTrigger>
             <TooltipContent>Redo</TooltipContent>
           </Tooltip>
-        <Button onClick={handleSearchInVectorStore} disabled={!query.isTextSelected}
+        <Button onClick={handleSearchInVectorStore} disabled={!query.isTextSelected || loading}
 
  className='flex gap-2 transition-all mb-4' size={'lg'}>
-    <span>
-      Ask AI
-    </span>
-    <Stars  />
+     <span>
+    {loading ? 'Thinking...' : 'Ask AI'}
+  </span>
+  {loading ? <Loader className="h-4 w-4 animate-spin" /> : <Stars className="h-4 w-4" />}
+
+    {/* <Stars  /> */}
   </Button>
         </div>
       </div>
     </TooltipProvider>
   )
 }
-export default function DocumentEditor({title, fileId}:Props) {
+export default function DocumentEditor({title, fileId, file}:Props) {
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [documentName, setDocumentName] = useState(title || "Untitled Document")
   const [fontSize, setFontSize] = useState(16)
+  const [documentName, setDocumentName] = useState(title || "Untitled Document")
+  const createNote = useMutation(api.notes.createNote, {pdfId: file?.id})
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -421,7 +494,7 @@ export default function DocumentEditor({title, fileId}:Props) {
       TableCell,
       Image,
     ],
-    content: '<h1>Welcome to Your Document</h1><p>Start typing to create your content...</p>',
+    // content: '<h1>Welcome to Your Document</h1><p>Start typing to create your content...</p>',
   })
 
   useEffect(() => {
@@ -452,8 +525,18 @@ export default function DocumentEditor({title, fileId}:Props) {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={async () => {
+            await createNote({
+              id:uuid(),
+              title: documentName,
+              text: editor?.getHTML(),
+              pdfId: file.id,
+              user: file.user
+            })
+
+            toast.success("successfully saved")
+          }} variant="outline" size="sm">
+            <Save className="h-4 focus:opacity-50 transition-all w-4 mr-2" />
             Save
           </Button>
           <DropdownMenu>
@@ -503,7 +586,7 @@ export default function DocumentEditor({title, fileId}:Props) {
         </div>
       </header>
       <main className="flex-grow overflow-auto p-4 bg-background transition-colors duration-300 ease-in-out">
-        <MenuBar fileId={fileId} title={documentName} editor={editor} isFullScreen={isFullScreen} toggleFullScreen={toggleFullScreen} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+        <MenuBar  file={file} fileId={fileId} title={documentName} editor={editor} isFullScreen={isFullScreen} toggleFullScreen={toggleFullScreen} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
         <EditorContent editor={editor} className="prose dark:prose-invert max-w-none transition-all duration-300 ease-in-out" />
       </main>
     </div>

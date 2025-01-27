@@ -19,13 +19,24 @@ export const ingest = action({
      const embeddings = new GoogleGenerativeAIEmbeddings({
         model: "text-embedding-004",  
         taskType: TaskType.RETRIEVAL_DOCUMENT,
+        
         title: "Document title",
-        apiKey: GEMENI_API_KEY,
+        apiKey: GEMENI_API_KEY, 
     });
+    for (const chunk of args.chunks) {
+      const chunkEmbedding = await embeddings.embedQuery(chunk);
+      console.log(`Ingest: Chunk embedding dimensions: ${chunkEmbedding.length}`);
+    }
+    
+    // // const queryEmbedding = await embeddings.embedQuery(args.chunks.at(0) + args.chun);
+    // console.log("CHUNK embedding dimensions:", queryEmbedding.length);
+
     console.log(embeddings, ' embeddings')
+    const metadata = args.chunks.map(() => ({ fileId: args.fileId }));
+
     await ConvexVectorStore.fromTexts(
       args.chunks as string[],
-      [{ prop: 2, fileId: args?.fileId  }],
+      metadata,
       embeddings,
       { ctx }
     );
@@ -34,6 +45,8 @@ export const ingest = action({
   
 });
 
+
+
 // search action
 export const search = action({
   args: {
@@ -41,6 +54,8 @@ export const search = action({
     fileId: v.string(),
   },
   handler: async (ctx, args) => {
+    // console.log(args, ' SSS')
+    // return;
 
     // converting text-query to embeddings
     const embeddings = new GoogleGenerativeAIEmbeddings({
@@ -48,15 +63,26 @@ export const search = action({
       taskType: TaskType.RETRIEVAL_DOCUMENT,
       title: "Document title",
       apiKey: GEMENI_API_KEY,
+       
   });
 
     // Now, matching the vector valuess with database and performing similarity search
     const vectorStore = new ConvexVectorStore(embeddings, { ctx });
-    const results = await vectorStore.similaritySearch(args.query, 1);
-    results.filter(
-      (result) => result.metadata.fileId === args.fileId
-    )
-    // return results.map((result) => result.pageContent);
-    return results
+
+    // Convert query text into embeddings
+    const queryEmbedding = await embeddings.embedQuery(args.query);
+    // console.log("Query embedding dimensions:", queryEmbedding.length);
+
+
+    let results = await vectorStore.similaritySearch(args.query, 3);
+    results = results.filter(q => q.metadata.fileId === args.fileId)
+    
+   
+    
+    // return results;
+    // console.log(typeof results, results.at(0));
+
+    return  JSON.stringify(results) ;
+    
   },
 });

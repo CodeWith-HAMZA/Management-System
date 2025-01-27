@@ -10,6 +10,7 @@ const PdfList = () => {
   const user = useUser();
   const q = useQuery(api.fileStorage.getFiles, {
     user: user.user?.id,
+    
   });
   console.log(q);
 
