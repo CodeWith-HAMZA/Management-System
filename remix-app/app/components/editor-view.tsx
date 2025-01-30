@@ -99,26 +99,44 @@ const MenuBar = ({ editor,file,fileId,title, isFullScreen, toggleFullScreen, isD
   setLoading(true);  // Set loading to true when starting the AI query
   const currentContent = editor.getHTML(); 
     
-
+  try {
+    
+ 
    let response = await search({fileId, query: query.text})
    response = JSON.parse(response)
 
-   console.log('response', ' resp',fileId, query, response )
-   let ans;
-   Array(response)?.forEach((item: any) => {
-    ans = item.pageContent
-   })
-  //  console.log(ans, ' accumulated ans')
-console.log(ans, ' ans')
-   const PROMPT = `For Question: ${query.text} and with the given content as answer, please give appropriate answer in html format. The answer content is: ${ans || "couldn't fetch it, then show [Sorry Couldn't Fetch Please Try Again]"}`
-   const aiAnswerResponse = await chatSession.sendMessage(PROMPT)
-   console.log(aiAnswerResponse.response.text(), aiAnswerResponse.response, ' shaddu')
-   let trimmedResponse = aiAnswerResponse.response.text();
-   console.log(trimmedResponse)
+   console.log('response', ' resp',response )
+   let ans:string = '';
+   [...(response)].forEach((item: any) => {
+    ans += (' '+ item.pageContent)
+   }) 
+  //  console.log(ans, ' ans')
+  //  const PROMPT = `For Question: ${query.text} and with the given content as answer, please give appropriate answer in html format. The answer content is: ${ans.replace('```html','').replace('```', '') || "couldn't fetch it, then show [Sorry Couldn't Fetch Please Try Again]"}`
+   
+  //  const aiAnswerResponse = await chatSession.sendMessage(PROMPT)
+  //  console.log(aiAnswerResponse.response.text(), aiAnswerResponse.response, ' shaddu')
+  //  let trimmedResponse = aiAnswerResponse.response.text();
+  //  console.log(trimmedResponse)
+  const PROMPT = `For Question: ${query.text} and with the given content as answer, 
+please give an appropriate answer in HTML format. 
+The answer content is: ${ans.replace('```html', '').replace('```', '') || "Sorry, couldn't fetch it. Please try again."}`;
+
+// Send request to OpenAI chat model
+const aiAnswerResponse = await chatSession(PROMPT);
+
+// OpenAI response already returns a cleaned text format
+console.log(aiAnswerResponse, 'shaddu');
+
+let trimmedResponse = aiAnswerResponse?.trim(); // Trim any extra spaces or newlines
+console.log(trimmedResponse, 'open');
+
    
   //  const aiAnswer =
   
-  const queryResponse =`${query.text} <p> <strong>Answer: </strong> ${trimmedResponse} </p>`
+  const queryResponse = `
+  <p><strong>Question:</strong> <em>${query.text}</em></p>
+  <p><strong className="text-lg">Answer:</strong> <em>${trimmedResponse}</em></p>
+`;
   // editor.commands.setContent(queryResponse)
 
    
@@ -133,11 +151,16 @@ console.log(ans, ' ans')
 
   
   
-  toast.success("Changes Updated")
+  toast.success("Extracted the Information")
 
   
 
   setLoading(false);  // Set loading to false once the response is ready
+
+} catch (error) {
+  toast.error(error.message.toString())
+    
+}
 
 
 
@@ -587,7 +610,7 @@ export default function DocumentEditor({title, fileId, file}:Props) {
       </header>
       <main className="flex-grow overflow-auto p-4 bg-background transition-colors duration-300 ease-in-out">
         <MenuBar  file={file} fileId={fileId} title={documentName} editor={editor} isFullScreen={isFullScreen} toggleFullScreen={toggleFullScreen} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-        <EditorContent editor={editor} className="prose dark:prose-invert max-w-none transition-all duration-300 ease-in-out" />
+        <EditorContent  editor={editor}  className="rounded-lg prose dark:prose-invert max-w-none transition-all duration-300 ease-in-out" />
       </main>
     </div>
   )

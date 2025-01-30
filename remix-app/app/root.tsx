@@ -16,6 +16,7 @@ import type { MetaFunction, LoaderFunction } from "@remix-run/node";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 import { ClerkApp } from "@clerk/remix";
 import { Toaster } from "./components/ui/sonner";
+import { ThemeProvider, useTheme } from "providers/theme-provider";
 export async function loader(args: unknown) {
   const CONVEX_URL = process.env.CONVEX_URL;
   if (!CONVEX_URL) {
@@ -46,8 +47,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
+
       <body>
-        <ConvexProvider client={convex}>{children}</ConvexProvider>
+
+        <ConvexProvider client={convex}>
+          <ThemeProvider>
+          {children}
+          </ThemeProvider>
+        </ConvexProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -56,9 +63,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  return <>
+  const theme = useTheme()
+  return  <>
     <Toaster />
-    <Outlet />
+    <Outlet /> 
   </>
 }
 

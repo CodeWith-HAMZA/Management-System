@@ -22,13 +22,13 @@ export const action = async ({ request }: {request: Request}) => {
 
   // Split text into chunks
   const textSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 70, // Reduced from 1000 to 600
-    chunkOverlap: 20, // Increased overlap for better context retention
+    chunkSize: 80, // Reduced from 1000 to 600
+    chunkOverlap: 60, // Increased overlap for better context retention
   
   });
   const chunks = await textSplitter.createDocuments([textContent]);
 
-  console.log(chunks)
+  // console.log(chunks, ' Recursive ')
   // Return the split chunks
   return json({ ok: true, chunks: chunks.map((chunk) => chunk.pageContent) });
 };
